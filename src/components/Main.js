@@ -41,6 +41,27 @@ function get30DegRandom() {
 
 //image component
 class ImageComponent extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.handleClick=this.handleClick.bind(this);
+  }
+  /*
+   * imgFigure的点击处理函数
+   */
+  handleClick(e){
+
+    if (this.props.arrange.isCenter) {
+      this.props.inverse();
+    } else {
+      this.props.center();
+    }
+
+    e.stopPropagation();
+    e.preventDefault()
+  }
+
+
   render() {
 
     var styleObj = {};
@@ -50,7 +71,6 @@ class ImageComponent extends React.Component {
       styleObj = this.props.arrange.pos;
     }
 
-
     //如果图片的旋转角度有值且不为零，添加旋转角度
     if(this.props.arrange.rotate) {
       ['-ms-', '-webkit-', '-moz-', ''].forEach(function (val) {
@@ -58,11 +78,27 @@ class ImageComponent extends React.Component {
       }.bind(this))
     }
 
+    var figureClassName = 'img-figure';
+    if (this.props.arrange.isInverse) {
+      figureClassName += ' is-inverse';
+    }
+
+
+
+
     return (
-      <figure className="img-figure" style={styleObj}>
-        <img className="yeoman-img" src={this.props.data.imageUrl} alt={this.props.data.title}/>
+      <figure className={figureClassName} style={styleObj} onClick={this.handleClick}>
+        <img className="yeoman-img"
+             src={this.props.data.imageUrl}
+             alt={this.props.data.title}
+        />
         <figcaption>
           <h2 className="img-title">{this.props.data.title}</h2>
+          <div className="img-back" onClick={this.handleClick}>
+            <p>
+              {this.props.data.desc}
+            </p>
+          </div>
         </figcaption>
       </figure>
     )
@@ -105,8 +141,47 @@ class AppComponent extends React.Component {
 
     //初始化state,图片的left，top位置
     this.state = {
-      imgsArrangeArr:[]
+        imgsArrangeArr:[
+          /*{
+            pos: {
+              top:0,
+              left:0
+            }，
+            rotate:0， //旋转角度
+            isInverser: false, //是否旋转
+            isCenter: false //图片是否居中
+          }*/
+        ]
     };
+  }
+
+  /*
+   *翻转图片
+   * @param index 输入当前被执行的inverse操作的图片对应的图片总数组的index值
+   * 闭包函数
+   */
+  inverse(index) {
+    return function () {
+      var imgsArrangeArr = this.state.imgsArrangeArr;
+
+      imgsArrangeArr[index].isInverse = !imgsArrangeArr[index].isInverse;
+
+      this.setState({
+        imgsArrangeArr: imgsArrangeArr
+      });
+    }.bind(this);
+  }
+
+
+
+
+  /*
+   *居中函数，用闭包包装一下rearrange函数
+   */
+  center(index){
+    return function() {
+      this.rearrange(index);
+    }.bind(this)
   }
 
 
@@ -146,7 +221,9 @@ class AppComponent extends React.Component {
     //居中centerIndex的图片
     //居中的图片不旋转
     imgsArrangeCenterArr[0] = {
-      pos: centerPos
+      pos: centerPos,
+      rotate:0,
+      isCenter:true
     };
 
 
@@ -162,7 +239,8 @@ class AppComponent extends React.Component {
           left: getRangeRandom(vPosRangeX[0], vPosRangeX[1]), // 调用上面的在区间内取随机数的函数
           top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1])
         },
-        rotate:get30DegRandom()
+        rotate:get30DegRandom(),
+        isCenter:false
       }
     });
 
@@ -182,7 +260,8 @@ class AppComponent extends React.Component {
           top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
           left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
         },
-        rotate:get30DegRandom()
+        rotate:get30DegRandom(),
+        isCenter:false
       }
     }
 
@@ -197,6 +276,7 @@ class AppComponent extends React.Component {
       imgsArrangeArr: imgsArrangeArr
     });
   }
+
 
 
 
@@ -258,7 +338,9 @@ class AppComponent extends React.Component {
             left:0,
             top:0
           },
-          rotate:0
+          rotate:0,
+          isInverse: false,
+          isCenter:false
         }
       }
 
@@ -267,6 +349,8 @@ class AppComponent extends React.Component {
         ref={'imgFigure'+ index}
         key={index}
         arrange={this.state.imgsArrangeArr[index]}
+        inverse={this.inverse(index)}
+        center={this.center(index)}
       />);
     }.bind(this));
 

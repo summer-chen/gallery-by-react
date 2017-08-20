@@ -25,6 +25,7 @@ html,body {
   overflow: hidden;
   background-color: #ddd;
 
+
   @at-root {
     .img-figure {
       position: absolute;
@@ -36,10 +37,45 @@ html,body {
       background-color: #fff;
 
       box-sizing: border-box;
+      cursor: pointer;
+      transform-style: preserve-3d;
+
+      &.is-inverse {
+        -webkit-transform: rotateY(180deg);
+        -moz-transform: rotateY(180deg);
+        -ms-transform: rotateY(180deg);
+        -o-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+      }
 
       .yeoman-img {
         width: 100%;
         padding-bottom: 40px;
+      }
+    }
+
+    .img-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      padding: 50px 40px;
+      overflow: auto;
+
+      color: #a7a0a2;
+      font-size: 22px;
+      line-height: 1.25;
+      text-align: center; //修改
+      background-color: #fff;
+
+      box-sizing: border-box;
+      transform: rotateY(180deg) translateZ(1px);
+      backface-visibility: hidden;
+      p {
+        margin: 0;
       }
     }
 
